@@ -23,7 +23,7 @@
 </head>
 <body>
 
-<div class="sb-navbar navbar navbar-expand-lg sticky-top">
+<nav class="sb-navbar navbar navbar-expand-lg sticky-top">
   <div class="container-xl">
     <a class="navbar-brand" href="{{ url_for('home') }}">
       <div class="brand-mark"><i class="bi bi-calendar2-heart-fill"></i></div>
@@ -123,7 +123,7 @@
       </ul>
     </div>
   </div>
-</div>
+</nav>
 
 {# ─── Flash messages (server-side alerts; fade out via CSS) ─── #}
 {% with messages = get_flashed_messages(with_categories=true) %}
