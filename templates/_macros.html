@@ -1,0 +1,24 @@
+{# ─────────────────────────────────────────────────────────────
+   Reusable Jinja macros.
+
+   biz_logo(biz, size, radius)
+     Renders a business logo. If the owner uploaded an image, we
+     show it as an <img>. Otherwise we fall back to the old coloured
+     square with the first letter of the name.
+
+       {% from "_macros.html" import biz_logo %}
+       {{ biz_logo(biz, 40) }}
+       {{ biz_logo(biz, 72, 14) }}
+   ──────────────────────────────────────────────────────────── #}
+
+{% macro biz_logo(biz, size=40, radius=10) -%}
+  {%- set s = size|string + 'px' -%}
+  {%- set r = radius|string + 'px' -%}
+  {%- if biz.logo_url -%}
+    <img src="{{ url_for('static', filename=biz.logo_url) }}"
+         alt="{{ biz.name }}"
+         style="width:{{ s }};height:{{ s }};border-radius:{{ r }};object-fit:cover;flex-shrink:0;background:{{ biz.logo_color or '#2563eb' }};"/>
+  {%- else -%}
+    <div style="width:{{ s }};height:{{ s }};border-radius:{{ r }};background:{{ biz.logo_color or '#2563eb' }};display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-weight:800;color:#fff;flex-shrink:0;font-size:{{ (size * 0.42)|round|int }}px;">{{ biz.logo_initial or (biz.name[0]|upper if biz.name else '?') }}</div>
+  {%- endif -%}
+{%- endmacro %}
