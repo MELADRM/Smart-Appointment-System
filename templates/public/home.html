@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% from "_macros.html" import biz_logo %}
+{% block title %}SmartBook Professional — The Trusted Booking Platform{% endblock %}
+{% block main_class %}p-0{% endblock %}
+{% block content %}
+
+<!-- HERO -->
+<section class="hero-wrap">
+  <div class="hero-glow"></div>
+  <!-- Animated background orbs + drifting grid overlay -->
+  <div class="hero-orb hero-orb-1"></div>
+  <div class="hero-orb hero-orb-2"></div>
+  <div class="hero-orb hero-orb-3"></div>
+  <div class="hero-grid-drift"></div>
+  <div class="container-xl hero-content py-5">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6" data-reveal>
+        <div class="hero-eyebrow">Trusted Booking Marketplace</div>
+        <h1 class="hero-title">Book Any Business.<br><em>Instantly. Effortlessly.</em></h1>
+        <div class="hero-rule"></div>
+        <p class="hero-sub mb-4">SmartBook Professional connects customers with verified businesses — clinics, studios, consultants and more. Apply to list your business and go live within hours.</p>
+        <div class="d-flex gap-3 flex-wrap">
+          {% if not session.user_id %}
+          <a href="{{ url_for('register') }}" class="btn btn-gold btn-lg px-4 py-2">Get Started Free</a>
+          <a href="{{ url_for('explore') }}" class="btn btn-lg px-4 py-2 fw-semibold" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.18)">Explore Businesses</a>
+          {% else %}
+          <a href="{{ url_for('dashboard') }}" class="btn btn-gold btn-lg px-4 py-2">My Dashboard</a>
+          <a href="{{ url_for('explore') }}" class="btn btn-lg px-4 py-2 fw-semibold" style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.18)">Explore</a>
+          {% endif %}
+        </div>
+        <div class="d-flex gap-5 mt-4 pt-2" style="border-top:1px solid rgba(255,255,255,.08)">
+          <div class="hero-stat"><div class="val"><span data-counter="{{ stats.businesses }}">0</span></div><div class="lbl">Businesses</div></div>
+          <div class="hero-stat"><div class="val"><span data-counter="{{ stats.appointments }}">0</span></div><div class="lbl">Bookings Made</div></div>
+          <div class="hero-stat"><div class="val"><span data-counter="{{ stats.users }}">0</span>+</div><div class="lbl">Customers</div></div>
+        </div>
+      </div>
+
+      <!-- Floating calendar widget -->
+      <div class="col-lg-5 offset-lg-1 d-none d-lg-block">
+        <div class="hero-cal-stack">
+          <!-- Decorative mini booking card behind the calendar -->
+          <div class="hero-mini-card">
+            {% if featured %}
+              {% set biz = featured[0] %}
+              <div class="d-flex align-items-center gap-2">
+                {% if biz.logo_url %}
+                  <img src="{{ url_for('static', filename=biz.logo_url) }}" alt="{{ biz.name }}" class="hero-mini-logo" style="object-fit:cover;background:{{ biz.logo_color }}"/>
+                {% else %}
+                  <div class="hero-mini-logo" style="background:{{ biz.logo_color }}">{{ biz.logo_initial }}</div>
+                {% endif %}
+                <div class="flex-grow-1">
+                  <div class="hero-mini-name">{{ biz.name }}</div>
+                  <div class="hero-mini-cat">{{ biz.category }}</div>
+                </div>
+                <span class="hero-mini-badge">Verified</span>
+              </div>
+            {% else %}
+              <div class="hero-mini-name">Live availability</div>
+              <div class="hero-mini-cat">Real-time booking</div>
+            {% endif %}
+          </div>
+
+          <!-- The main floating calendar -->
+          <div class="hero-cal">
+            <div class="hero-cal-header">
+              <span class="hero-cal-dot"></span>
+              <span class="hero-cal-title">{{ hero_month }}</span>
+              <span class="hero-cal-live"><span class="hero-cal-pulse"></span>Live</span>
+            </div>
+            <div class="hero-cal-dow">
+              <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
+            </div>
+            <div class="hero-cal-grid">
+              {% for week in hero_weeks %}
+                {% for d in week %}
+                  {% if d.month != hero_today.month %}
+                    <span class="hc-d hc-out">{{ d.day }}</span>
+                  {% elif d == hero_today %}
+                    <span class="hc-d hc-today">{{ d.day }}</span>
+                  {% elif d.weekday() in [5, 6] %}
+                    <span class="hc-d hc-weekend">{{ d.day }}</span>
+                  {% else %}
+                    <span class="hc-d {% if (d.day * 7) % 3 == 0 %}hc-has{% endif %}">{{ d.day }}</span>
+                  {% endif %}
+                {% endfor %}
+              {% endfor %}
+            </div>
+            <div class="hero-cal-footer">
+              <div class="hero-cal-legend"><span class="lg-dot" style="background:var(--gold)"></span>Today</div>
+              <div class="hero-cal-legend"><span class="lg-dot" style="background:#28c840"></span>Available</div>
+              <div class="hero-cal-cta">Book →</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Trust bar -->
+<div style="background:var(--surface);border-bottom:1px solid var(--border)">
+  <div class="container-xl py-3">
+    <div class="d-flex align-items-center justify-content-center gap-5 flex-wrap">
+      {% for icon, text in [('bi-shield-check','Verified Businesses'),('bi-lock','Secure Bookings'),('bi-clock','Real-time Availability'),('bi-bell','Instant Notifications')] %}
+      <div class="d-flex align-items-center gap-2" style="font-size:.78rem;color:var(--text-muted);font-weight:500">
+        <i class="bi {{ icon }}" style="color:var(--gold);font-size:.9rem"></i>{{ text }}
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<!-- Featured businesses -->
+{% if featured %}
+<section class="container-xl py-5">
+  <div class="d-flex align-items-end justify-content-between mb-4">
+    <div>
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:.35rem">Featured</div>
+      <h2 class="fw-bold mb-0" style="letter-spacing:-.03em">Top Businesses</h2>
+    </div>
+    <a href="{{ url_for('explore') }}" class="btn btn-outline-secondary btn-sm">View All <i class="bi bi-arrow-right ms-1"></i></a>
+  </div>
+  <div class="row g-3">
+    {% for biz in featured %}
+    <div class="col-sm-6 col-lg-4" data-reveal data-reveal-delay="{{ loop.index0 % 4 }}">
+      <a href="{{ url_for('business_page', slug=biz.slug) }}" class="biz-card sb-tilt h-100">
+        <div class="biz-card-header" style="background:{{ biz.logo_color }}{% if biz.logo_url %};background-image:url('{{ url_for('static', filename=biz.logo_url) }}');background-size:cover;background-position:center{% endif %}">{% if not biz.logo_url %}{{ biz.logo_initial }}{% endif %}</div>
+        <div class="biz-card-body">
+          <div class="biz-tag">{{ biz.category }}</div>
+          <h6>{{ biz.name }}</h6>
+          <p>{{ biz.description[:88] }}{% if biz.description|length > 88 %}...{% endif %}</p>
+          <div class="d-flex align-items-center gap-2 mt-auto pt-2" style="border-top:1px solid var(--border-light)">
+            {% if biz.address %}<span style="font-size:.68rem;color:var(--text-dim)"><i class="bi bi-geo-alt me-1"></i>{{ biz.address[:26] }}</span>{% endif %}
+            <span class="ms-auto" style="font-size:.7rem;font-weight:700;color:var(--navy);letter-spacing:.02em">Book Now <i class="bi bi-arrow-right"></i></span>
+          </div>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+
+<!-- Categories -->
+<section style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container-xl py-5">
+    <div class="text-center mb-4">
+      <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:.35rem">Discover</div>
+      <h2 class="fw-bold" style="letter-spacing:-.03em">Browse by Category</h2>
+    </div>
+    <div class="d-flex flex-wrap gap-2 justify-content-center">
+      {% set icons = {'Healthcare':'❤️','Dentistry':'🦷','Cardiology':'🫀','Dermatology':'✨','Physiotherapy':'💪','Mental Health':'🧠','Nutrition':'🥗','Veterinary':'🐾','Beauty & Wellness':'💆','Legal':'⚖️','Financial':'💰','Education':'📚','Fitness':'🏋️','Other':'📌'} %}
+      {% for cat in CATEGORIES %}
+      <a href="{{ url_for('explore', cat=cat) }}" class="text-decoration-none">
+        <div style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.45rem .95rem;font-size:.78rem;font-weight:600;color:var(--text-muted);display:inline-flex;align-items:center;gap:.45rem;transition:all .18s" onmouseover="this.style.borderColor='var(--gold)';this.style.color='var(--text)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+          {{ icons.get(cat,'📌') }} {{ cat }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="container-xl py-5">
+  <div class="text-center mb-5">
+    <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--gold);margin-bottom:.35rem">Process</div>
+    <h2 class="fw-bold" style="letter-spacing:-.03em">How It Works</h2>
+    <p class="text-muted mt-1" style="font-size:.9rem">From discovery to confirmed booking in under two minutes</p>
+  </div>
+  <div class="row g-4 justify-content-center">
+    {% for n,title,desc in [('01','Create Your Account','Register free as a customer. Or apply to list your business and get your own booking page.'),('02','Discover & Select','Browse verified businesses by category, read reviews, view services and pricing.'),('03','Book Instantly','Pick a date, choose a time slot, confirm. Manage everything from your dashboard.')] %}
+    <div class="col-md-4" data-reveal data-reveal-delay="{{ loop.index0 }}">
+      <div class="sb-card sb-card-body h-100" style="border-top:2px solid var(--gold);padding-top:1.5rem">
+        <div style="font-family:'Playfair Display',serif;font-size:2rem;font-weight:700;color:var(--gold);opacity:.5;line-height:1;margin-bottom:.75rem">{{ n }}</div>
+        <h5 class="fw-bold mb-2" style="font-size:1rem;letter-spacing:-.02em">{{ title }}</h5>
+        <p class="text-muted mb-0" style="font-size:.82rem;line-height:1.65">{{ desc }}</p>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- CTA Banner -->
+<section style="background:var(--navy);padding:4rem 0;position:relative;overflow:hidden">
+  <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.02) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);background-size:70px 70px"></div>
+  <div class="container-xl text-center position-relative">
+    <div style="font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);margin-bottom:.75rem">For Business Owners</div>
+    <h2 style="font-family:'Playfair Display',serif;font-weight:700;color:#fff;font-size:clamp(1.6rem,3.5vw,2.2rem);letter-spacing:-.02em;margin-bottom:.75rem">List Your Business on SmartBook</h2>
+    <p style="color:rgba(255,255,255,.55);margin-bottom:2rem;font-size:.92rem;max-width:500px;margin-left:auto;margin-right:auto">Get your own public booking URL, manage appointments, track reviews — everything in one place. Admin-approved and live today.</p>
+    <div class="d-flex gap-3 justify-content-center flex-wrap mb-4">
+      <a href="{{ url_for('apply_business') if session.user_id else url_for('register') }}" class="btn btn-gold px-5 py-2 fw-bold">Apply Now <i class="bi bi-arrow-right ms-1"></i></a>
+    </div>
+    <div class="mx-auto" style="display:inline-block;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:6px;padding:.6rem 1.5rem;font-size:.74rem;color:rgba(255,255,255,.5)">
+      Demo — Admin: <strong style="color:rgba(255,255,255,.8)">admin@smartbook.com</strong> / admin123 &nbsp;·&nbsp; Business: <strong style="color:rgba(255,255,255,.8)">sarah@smartbook.com</strong> / staff123
+    </div>
+  </div>
+</section>
+
+{% endblock %}
