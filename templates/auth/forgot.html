@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Forgot Password — SmartBook Pro{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="sb-card sb-card-body">
+      <h1 class="h4 mb-2"><i class="bi bi-shield-lock me-2 text-primary"></i>Forgot password?</h1>
+      <p class="text-muted small mb-4">Enter the email on your account. We'll send you a link to set a new password.</p>
+
+      <form method="POST">
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control" required autofocus maxlength="190"/>
+        </div>
+        <button type="submit" class="btn btn-primary w-100">Send reset link</button>
+      </form>
+
+      <div class="text-center mt-3">
+        <a href="{{ url_for('login') }}" class="small text-muted text-decoration-none">
+          <i class="bi bi-arrow-left me-1"></i>Back to sign in
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

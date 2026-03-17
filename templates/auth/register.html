@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Register — SmartBook Pro{% endblock %}
+{% block content %}
+<div class="row justify-content-center"><div class="col-md-5 col-lg-4">
+<div class="sb-card sb-card-body mt-4">
+  <div class="text-center mb-4"><i class="bi bi-person-plus-fill text-primary" style="font-size:2rem"></i><h3 class="fw-bold mt-2 mb-1">Create Account</h3><p class="text-muted small">Join SmartBook Pro for free</p></div>
+  <form method="POST">
+    <div class="mb-3"><label class="form-label">Full Name</label><input type="text" name="name" class="form-control" placeholder="Jane Smith" required minlength="2" maxlength="120"/></div>
+    <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" placeholder="you@example.com" required maxlength="190"/></div>
+    <div class="mb-3"><label class="form-label">Password</label><input type="password" name="password" class="form-control" placeholder="Min 6 characters" required minlength="6" maxlength="128"/></div>
+    <div class="mb-4"><label class="form-label">Confirm Password</label><input type="password" name="confirm" class="form-control" placeholder="Repeat password" required minlength="6" maxlength="128"/></div>
+    <button type="submit" class="btn btn-primary w-100">Create Account <i class="bi bi-arrow-right ms-1"></i></button>
+  </form>
+  <hr class="my-3"/>
+  <div class="text-center small">Already have an account? <a href="{{ url_for('login') }}" class="text-primary fw-semibold">Sign in</a></div>
+</div>
+</div></div>
+{% endblock %}
