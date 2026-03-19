@@ -6,4 +6,4 @@ Management course.
 Setup, run instructions, and feature documentation coming soon.
 
 ## Status
-UI prototyping in progress.
+Auth pages styled, navbar finalised.
