@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% from "_macros.html" import biz_logo %}
+{% block title %}Book at {{ biz.name }} — SmartBook Pro{% endblock %}
+{% block content %}
+
+{# ─────────────────────────────────────────────────────────────
+   Server-rendered booking page (no JavaScript).
+   Flow:
+     1. User picks a month with the ← / → arrows (query params).
+     2. User clicks a day  → page reloads with that day selected,
+                              showing morning + afternoon slots.
+     3. User clicks a slot → page reloads with that time selected.
+     4. User presses "Confirm Booking" to POST the form.
+   ──────────────────────────────────────────────────────────── #}
+
+<div class="page-header">
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1">
+    <li class="breadcrumb-item"><a href="{{ url_for('business_page', slug=biz.slug) }}">{{ biz.name }}</a></li>
+    <li class="breadcrumb-item active">Book</li>
+  </ol></nav>
+  <div class="d-flex align-items-center gap-3">
+    {{ biz_logo(biz, 38, 10) }}
+    <h1>Book at {{ biz.name }}</h1>
+  </div>
+</div>
+
+<div class="row g-3">
+
+  {# ═══════ LEFT COLUMN — calendar + time slots ═══════ #}
+  <div class="col-lg-7">
+    <div class="d-flex flex-column gap-3">
+
+      {# ── Month calendar ── #}
+      <div class="cal-container">
+        <div class="cal-nav-bar">
+          {% if is_current_month %}
+            <span class="cal-arrow" style="opacity:.25;cursor:not-allowed"><i class="bi bi-chevron-left"></i></span>
+          {% else %}
+            <a class="cal-arrow" href="{{ url_for('public_book', slug=biz.slug, year=prev_year, month=prev_month, date=selected_date) }}"><i class="bi bi-chevron-left"></i></a>
+          {% endif %}
+          <span class="cal-month-txt">{{ month_name }} {{ year }}</span>
+          <a class="cal-arrow" href="{{ url_for('public_book', slug=biz.slug, year=next_year, month=next_month, date=selected_date) }}"><i class="bi bi-chevron-right"></i></a>
+        </div>
+
+        <div class="cal-dow"><span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span></div>
+
+        <div class="cal-days-grid">
+          {% for week in weeks %}
+            {% for cell in week %}
+              {# Days outside the current month or in the past are not clickable #}
+              {% if not cell.in_month or cell.past %}
+                <div class="cal-d {% if cell.past %}past{% endif %} {% if not cell.in_month %}empty{% endif %}">
+                  {% if cell.in_month %}{{ cell.day }}{% endif %}
+                </div>
+              {% else %}
+                <a class="cal-d{% if cell.today %} today{% endif %}{% if cell.selected %} selected{% endif %}{% if cell.weekend %} weekend{% endif %}{% if cell.has_free %} has-free{% endif %}{% if cell.all_booked %} all-booked{% endif %}"
+                   href="{{ url_for('public_book', slug=biz.slug, year=year, month=month, date=cell.date_str) }}">
+                  {{ cell.day }}
+                </a>
+              {% endif %}
+            {% endfor %}
+          {% endfor %}
+        </div>
+
+        <div class="d-flex gap-3 px-3 pb-2 flex-wrap" style="font-size:.65rem;color:var(--text-muted)">
+          <span><span class="legend-dot" style="background:var(--accent)"></span>Selected</span>
+          <span><span class="legend-dot" style="background:var(--success)"></span>Free</span>
+          <span><span class="legend-dot" style="background:var(--danger)"></span>Full</span>
+        </div>
+      </div>
+
+      {# ── Time slots (only shown once a day has been picked) ── #}
+      <div class="sb-card">
+        {% if not selected_date %}
+          <div class="no-date-hint"><i class="bi bi-calendar3"></i>Select a date to see available slots</div>
+        {% else %}
+          <div class="slots-section">
+            <div class="slot-date-lbl">{{ (selected_date_obj.strftime('%A, %B ') ~ selected_date_obj.day ~ selected_date_obj.strftime(', %Y')) if selected_date_obj else selected_date }}</div>
+
+            {# Each slot is a link that reloads the page with ?time=HH:MM set.
+               Taken slots are rendered as non-clickable spans. #}
+            <div class="slot-period-lbl">☀ Morning</div>
+            <div class="slot-pills-row">
+              {% for s in slots_am %}
+                {% if s.taken %}
+                  <span class="slot-pill taken">{{ s.display }}</span>
+                {% else %}
+                  <a class="slot-pill{% if s.time == selected_time %} selected{% endif %}"
+                     href="{{ url_for('public_book', slug=biz.slug, year=year, month=month, date=selected_date, time=s.time) }}">{{ s.display }}</a>
+                {% endif %}
+              {% else %}
+                <span class="text-muted" style="font-size:.75rem">No morning slots.</span>
+              {% endfor %}
+            </div>
+
+            <div class="slot-period-lbl">🌤 Afternoon</div>
+            <div class="slot-pills-row">
+              {% for s in slots_pm %}
+                {% if s.taken %}
+                  <span class="slot-pill taken">{{ s.display }}</span>
+                {% else %}
+                  <a class="slot-pill{% if s.time == selected_time %} selected{% endif %}"
+                     href="{{ url_for('public_book', slug=biz.slug, year=year, month=month, date=selected_date, time=s.time) }}">{{ s.display }}</a>
+                {% endif %}
+              {% else %}
+                <span class="text-muted" style="font-size:.75rem">No afternoon slots.</span>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+
+  {# ═══════ RIGHT COLUMN — booking summary + confirm form ═══════ #}
+  <div class="col-lg-5">
+    <div class="booking-summary sb-card-body">
+      <div class="fw-bold mb-3" style="font-family:'Sora',sans-serif;font-size:.92rem">
+        <i class="bi bi-clipboard-check me-2 text-primary"></i>Booking Summary
+      </div>
+
+      <div class="sum-row">
+        <div class="sum-ico"><i class="bi bi-shop"></i></div>
+        <div><div class="sum-lbl">Business</div><div class="sum-val">{{ biz.name }}</div></div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ico"><i class="bi bi-calendar3"></i></div>
+        <div>
+          <div class="sum-lbl">Date</div>
+          <div class="sum-val{% if not selected_date %} empty{% endif %}">
+            {{ (selected_date_obj.strftime('%A, %B ') ~ selected_date_obj.day ~ selected_date_obj.strftime(', %Y')) if selected_date_obj else 'Not selected' }}
+          </div>
+        </div>
+      </div>
+      <div class="sum-row">
+        <div class="sum-ico"><i class="bi bi-clock"></i></div>
+        <div>
+          <div class="sum-lbl">Time</div>
+          <div class="sum-val{% if not selected_time %} empty{% endif %}">
+            {{ fmt_slot(selected_time) if selected_time else 'Not selected' }}
+          </div>
+        </div>
+      </div>
+
+      {# ── Final confirm form — all values are hidden fields filled in by the server ── #}
+      <form method="POST" class="mt-3">
+        {% if services %}
+          <label class="form-label mt-2">Service (optional)</label>
+          <select class="form-select" name="service_id">
+            <option value="">— Select a service —</option>
+            {% for s in services %}
+              <option value="{{ s.id }}">
+                {{ s.name }}{% if s.duration_min %} ({{ s.duration_min }} min){% endif %}{% if s.price > 0 %} — ${{ "%.0f"|format(s.price) }}{% endif %}
+              </option>
+            {% endfor %}
+          </select>
+        {% endif %}
+
+        <label class="form-label mt-3">Notes (optional)</label>
+        <textarea class="form-control" name="notes" rows="2" placeholder="Any special requests..."></textarea>
+
+        <input type="hidden" name="date" value="{{ selected_date or '' }}"/>
+        <input type="hidden" name="time" value="{{ selected_time or '' }}"/>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-3"
+                {% if not (selected_date and selected_time) %}disabled{% endif %}>
+          {% if not selected_date %}
+            Choose a date
+          {% elif not selected_time %}
+            Pick a time slot
+          {% else %}
+            Confirm Booking →
+          {% endif %}
+        </button>
+      </form>
+
+      <a href="{{ url_for('business_page', slug=biz.slug) }}" class="btn btn-outline-secondary w-100 mt-2">
+        <i class="bi bi-arrow-left me-1"></i>Back
+      </a>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

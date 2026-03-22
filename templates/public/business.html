@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}{{ biz.name }} — SmartBook Pro{% endblock %}
+{% block content %}
+<div class="biz-hero" style="background:linear-gradient(135deg,{{ biz.logo_color }},{{ biz.logo_color }}cc)">
+  <div class="d-flex align-items-start gap-3">
+    {% if biz.logo_url %}
+      <img src="{{ url_for('static', filename=biz.logo_url) }}" alt="{{ biz.name }}" class="biz-logo-lg" style="object-fit:cover;background:rgba(255,255,255,.18)"/>
+    {% else %}
+      <div class="biz-logo-lg">{{ biz.logo_initial }}</div>
+    {% endif %}
+    <div class="flex-grow-1">
+      <div style="font-size:.7rem;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:.08em;font-weight:700">{{ biz.category }}</div>
+      <h1 style="font-family:'Sora',sans-serif;font-weight:800;color:#fff;font-size:clamp(1.4rem,3vw,2rem);margin:.2rem 0 .4rem">{{ biz.name }}</h1>
+      {% if avg_rating %}<div class="stars">{% for i in range(avg_rating|int) %}★{% endfor %} <span style="color:rgba(255,255,255,.8);font-size:.8rem">{{ avg_rating }} ({{ reviews|length }} reviews)</span></div>{% endif %}
+      {% if biz.address %}<div style="font-size:.8rem;color:rgba(255,255,255,.8);margin-top:.3rem"><i class="bi bi-geo-alt me-1"></i>{{ biz.address }}</div>{% endif %}
+    </div>
+    <div class="d-none d-md-flex flex-column gap-2 align-items-end">
+      <a href="{{ url_for('public_book', slug=biz.slug) }}" class="btn fw-bold px-4" style="background:#fff;color:{{ biz.logo_color }}"><i class="bi bi-calendar-plus me-1"></i>Book Now</a>
+    </div>
+  </div>
+  <div class="share-box mt-3" style="background:rgba(0,0,0,.2);border-color:rgba(255,255,255,.2)">
+    <i class="bi bi-link-45deg" style="color:rgba(255,255,255,.6)"></i>
+    <span class="share-url" style="color:rgba(255,255,255,.9)">{{ request.url }}</span>
+    <button class="btn btn-sm ms-auto" style="background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:.72rem" onclick="navigator.clipboard.writeText('{{ request.url }}');this.textContent='Copied!'">Copy Link</button>
+  </div>
+</div>
+<div class="row g-4">
+  <div class="col-lg-8">
+    <div class="sb-card sb-card-body mb-3">
+      <h5 class="fw-bold mb-2">About</h5>
+      <p class="text-muted">{{ biz.description }}</p>
+      <div class="row g-3 mt-1">
+        {% if biz.phone %}<div class="col-sm-6"><small class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Phone</small><span style="font-size:.875rem">{{ biz.phone }}</span></div>{% endif %}
+        {% if biz.email %}<div class="col-sm-6"><small class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Email</small><span style="font-size:.875rem">{{ biz.email }}</span></div>{% endif %}
+        {% if biz.website %}<div class="col-sm-6"><small class="text-muted d-block" style="font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;font-weight:700">Website</small><a href="{{ biz.website }}" target="_blank" style="font-size:.875rem">{{ biz.website }}</a></div>{% endif %}
+      </div>
+    </div>
+    {% if gallery %}
+    <div class="sb-card mb-3">
+      <div class="sb-card-header"><i class="bi bi-images me-2"></i>Photo Gallery</div>
+      <div class="sb-card-body">
+        <div class="sb-gallery-grid">
+          {% for img in gallery %}
+          <a href="{{ url_for('static', filename=img.url) }}" target="_blank" class="sb-gallery-cell">
+            <img src="{{ url_for('static', filename=img.url) }}" alt="{{ img.caption or biz.name }}" loading="lazy"/>
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    {% if biz.owner_bio %}
+    <div class="sb-card sb-card-body mb-3">
+      <h5 class="fw-bold mb-2"><i class="bi bi-person-heart me-2 text-primary"></i>Meet the owner
+        {% if owner %}<span class="text-muted fw-normal" style="font-size:.9rem">· {{ owner.name }}</span>{% endif %}
+      </h5>
+      <p class="text-muted mb-0" style="white-space:pre-line">{{ biz.owner_bio }}</p>
+    </div>
+    {% endif %}
+
+    {% if services %}
+    <div class="sb-card mb-3">
+      <div class="sb-card-header"><i class="bi bi-list-ul me-2"></i>Services Offered</div>
+      <div class="sb-card-body">
+        <div class="row g-2">
+          {% for s in services %}
+          <div class="col-sm-6">
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:.85rem 1rem;">
+              <div class="fw-bold" style="font-size:.875rem">{{ s.name }}</div>
+              {% if s.description %}<div style="font-size:.78rem;color:var(--text-muted)">{{ s.description }}</div>{% endif %}
+              <div class="d-flex gap-2 mt-1">
+                <span style="font-size:.72rem;color:var(--text-muted)"><i class="bi bi-clock me-1"></i>{{ s.duration_min }} min</span>
+                {% if s.price > 0 %}<span style="font-size:.72rem;color:var(--success);font-weight:700">${{ "%.0f"|format(s.price) }}</span>{% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endif %}
+    {% if reviews %}
+    <div class="sb-card">
+      <div class="sb-card-header"><i class="bi bi-star me-2"></i>Reviews ({{ reviews|length }})</div>
+      <div class="sb-card-body">
+        {% for r in reviews %}
+        <div class="mb-3 pb-3" style="border-bottom:1px solid var(--border)">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <div class="avatar-sm">{{ r.reviewer_name[0] }}</div>
+            <strong style="font-size:.875rem">{{ r.reviewer_name }}</strong>
+            <div class="stars" style="font-size:.8rem">{% for i in range(r.rating) %}★{% endfor %}</div>
+            <span class="text-muted small ms-auto">{{ r.created_at[:10] }}</span>
+          </div>
+          {% if r.comment %}<p class="text-muted small mb-0">{{ r.comment }}</p>{% endif %}
+          {% if r.owner_reply %}
+          <div class="owner-reply mt-2">
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <i class="bi bi-reply-fill text-primary"></i>
+              <strong style="font-size:.76rem;color:var(--accent)">Response from {{ biz.name }}</strong>
+              {% if r.owner_reply_at %}<span class="text-muted" style="font-size:.66rem">· {{ r.owner_reply_at[:10] }}</span>{% endif %}
+            </div>
+            <div style="font-size:.8rem;color:var(--text);white-space:pre-line">{{ r.owner_reply }}</div>
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+  <div class="col-lg-4">
+    <div class="sb-card sb-card-body text-center mb-3">
+      <h6 class="fw-bold mb-3">Ready to book?</h6>
+      {% if session.user_id %}
+      <a href="{{ url_for('public_book', slug=biz.slug) }}" class="btn btn-primary w-100 py-2"><i class="bi bi-calendar-plus me-1"></i>Book Appointment</a>
+      {% else %}
+      <a href="{{ url_for('login') }}" class="btn btn-primary w-100 py-2"><i class="bi bi-box-arrow-in-right me-1"></i>Login to Book</a>
+      <a href="{{ url_for('register') }}" class="btn btn-outline-secondary w-100 mt-2">Create Free Account</a>
+      {% endif %}
+    </div>
+
+    {% if biz.address %}
+    <div class="sb-card mb-3">
+      <div class="sb-card-header"><i class="bi bi-geo-alt me-2"></i>Location</div>
+      <div class="sb-card-body p-0">
+        <iframe
+          class="sb-map-embed"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          src="https://www.openstreetmap.org/export/embed.html?bbox=&layer=mapnik&marker=&q={{ biz.address|urlencode }}"
+          title="Map for {{ biz.name }}"
+          allowfullscreen></iframe>
+        <div class="px-3 py-2 small">
+          <i class="bi bi-geo-alt-fill me-1 text-primary"></i>{{ biz.address }}
+          <a href="https://www.openstreetmap.org/search?query={{ biz.address|urlencode }}"
+             target="_blank" rel="noopener" class="d-block mt-1 text-decoration-none">
+             <i class="bi bi-box-arrow-up-right me-1"></i>Open in OpenStreetMap
+          </a>
+          <a href="https://www.google.com/maps/search/?api=1&query={{ biz.address|urlencode }}"
+             target="_blank" rel="noopener" class="d-block text-decoration-none">
+             <i class="bi bi-box-arrow-up-right me-1"></i>Open in Google Maps
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
