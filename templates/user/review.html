@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Leave a Review{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-star me-2 text-warning"></i>Leave a Review</h1></div>
+<div class="row justify-content-center"><div class="col-lg-5">
+<div class="sb-card sb-card-body">
+  <div class="d-flex align-items-center gap-3 mb-4 p-3 rounded-3" style="background:var(--surface2)">
+    {% if biz and biz.logo_url %}
+      <img src="{{ url_for('static', filename=biz.logo_url) }}" alt="{{ biz.name }}" style="width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--accent-soft)"/>
+    {% else %}
+      <div style="width:40px;height:40px;border-radius:10px;background:var(--accent-soft);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--accent);font-family:'Sora',sans-serif;">{{ biz.logo_initial if biz else '?' }}</div>
+    {% endif %}
+    <div><div class="fw-bold">{{ biz.name if biz else 'Business' }}</div><div class="text-muted small">{{ appt.date }} at {{ fmt_slot(appt.time) }}</div></div>
+  </div>
+  <form method="POST">
+    <div class="mb-3">
+      <label class="form-label">Your Rating</label>
+      <div class="stars-input">
+        {% for i in [5,4,3,2,1] %}
+        <input type="radio" name="rating" id="star{{ i }}" value="{{ i }}" {% if i==5 %}checked{% endif %}/>
+        <label for="star{{ i }}">★</label>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="mb-4"><label class="form-label">Comment (optional)</label><textarea name="comment" class="form-control" rows="3" placeholder="Share your experience..."></textarea></div>
+    <button type="submit" class="btn btn-warning w-100 fw-bold"><i class="bi bi-star me-1"></i>Submit Review</button>
+  </form>
+</div>
+</div></div>
+{% endblock %}

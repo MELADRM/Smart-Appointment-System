@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-bell me-2 text-primary"></i>Notifications</h1></div>
+<div class="sb-card">
+  {% if notifs %}
+    {% for n in notifs %}
+    <div class="notif-item">
+      <div class="notif-dot"></div>
+      <div class="flex-grow-1"><div style="font-size:.875rem">{{ n.message|safe }}</div><div class="text-muted" style="font-size:.72rem">{{ n.created_at[:16] }}</div></div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div class="sb-card-body text-center py-5 text-muted"><i class="bi bi-bell-slash" style="font-size:2.5rem"></i><p class="mt-3">No notifications yet.</p></div>
+  {% endif %}
+</div>
+{% endblock %}

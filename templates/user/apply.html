@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Apply to List Your Business{% endblock %}
+{% block content %}
+<div class="page-header"><h1><i class="bi bi-shop me-2 text-primary"></i>List Your Business</h1></div>
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="apply-steps mb-4">
+      {% for n,lbl,st in [('1','Apply','active'),('2','Review',''),('3','Go Live','')] %}
+      <div class="apply-step"><div class="step-circle {{st}}">{{ '✓' if st=='done' else n }}</div><div class="step-lbl">{{lbl}}</div></div>
+      {% endfor %}
+    </div>
+    <div class="sb-card sb-card-body">
+      <h5 class="fw-bold mb-1">Business Application</h5>
+      <p class="text-muted small mb-4">Fill in your business details. The admin will review and approve your application within 24 hours. Once approved, you'll get your own public booking page.</p>
+      <form method="POST">
+        <div class="mb-3"><label class="form-label">Business Name *</label><input type="text" name="name" class="form-control" placeholder="e.g. Smith Dental Clinic" required minlength="2" maxlength="150"/></div>
+        <div class="mb-3"><label class="form-label">Category *</label>
+          <select name="category" class="form-select" required>
+            <option value="">— Select —</option>
+            {% for c in CATEGORIES %}<option value="{{ c }}">{{ c }}</option>{% endfor %}
+          </select>
+        </div>
+        <div class="mb-3"><label class="form-label">Description *</label><textarea name="description" class="form-control" rows="3" placeholder="Briefly describe your business and services..." required minlength="10" maxlength="2000"></textarea></div>
+        <div class="mb-3"><label class="form-label">Business Email</label><input type="email" name="email" class="form-control" placeholder="hello@yourbusiness.com" maxlength="190"/></div>
+        <div class="mb-3">
+          <label class="form-label">Phone Number</label>
+          <input type="tel" name="phone" class="form-control"
+                 placeholder="+1 555 000 0000"
+                 pattern="\+?[\d\s\-().]{7,25}"
+                 maxlength="25"
+                 title="Digits, spaces, and + - ( ) only."/>
+        </div>
+        <div class="mb-4"><label class="form-label">Address</label><input type="text" name="address" class="form-control" placeholder="123 Main St, City" maxlength="255"/></div>
+        <button type="submit" class="btn btn-primary w-100 py-2"><i class="bi bi-send me-1"></i>Submit Application</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

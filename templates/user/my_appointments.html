@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}My Appointments{% endblock %}
+{% block content %}
+{% if request.args.get('just_booked') %}<span data-confetti hidden></span>{% endif %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-calendar-check me-2 text-primary"></i>My Appointments</h1>
+    <a href="{{ url_for('explore') }}" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i>Book New</a>
+  </div>
+</div>
+{% if appointments %}
+<div class="sb-table-wrap">
+  <table class="table mb-0">
+    <thead><tr><th>#</th><th>Business</th><th>Date</th><th>Time</th><th>Service</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for a in appointments %}
+      <tr>
+        <td class="text-muted">{{ loop.index }}</td>
+        <td><strong>{{ a.business_name }}</strong></td>
+        <td>{{ a.date }}</td>
+        <td>{{ fmt_slot(a.time) }}</td>
+        <td class="text-muted">{{ a.service_name }}</td>
+        <td><span class="s-badge s-{{ a.status }}">● {{ a.status|capitalize }}</span></td>
+        <td>
+          {% if a.status == 'booked' %}
+          <a href="{{ url_for('user_reschedule', appt_id=a.id) }}" class="btn btn-outline-secondary btn-sm me-1" title="Reschedule"><i class="bi bi-calendar-event"></i></a>
+          <form method="POST" action="{{ url_for('user_cancel', appt_id=a.id) }}" class="d-inline" onsubmit="return confirm('Cancel?')"><button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-x-lg"></i></button></form>
+          {% elif a.status == 'completed' %}
+          <a href="{{ url_for('leave_review', appt_id=a.id) }}" class="btn btn-outline-warning btn-sm"><i class="bi bi-star me-1"></i>Review</a>
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="sb-card sb-card-body text-center py-5">
+  <i class="bi bi-calendar-x text-muted" style="font-size:3rem"></i>
+  <h5 class="mt-3">No Appointments Yet</h5>
+  <p class="text-muted">Discover businesses and book your first appointment.</p>
+  <a href="{{ url_for('explore') }}" class="btn btn-primary px-4">Explore Businesses</a>
+</div>
+{% endif %}
+{% endblock %}
