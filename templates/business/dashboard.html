@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+{% block title %}Business Dashboard — {{ biz.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <div class="text-muted small mb-1"><i class="bi bi-shop me-1"></i>Business Dashboard</div>
+      <h1 class="mb-0">{{ biz.name }}</h1>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ public_url }}" target="_blank" class="btn btn-outline-primary btn-sm"><i class="bi bi-box-arrow-up-right me-1"></i>Public Page</a>
+      <a href="{{ url_for('biz_profile') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil me-1"></i>Edit Profile</a>
+    </div>
+  </div>
+</div>
+
+<!-- Public URL share box -->
+<div class="share-box mb-4">
+  <i class="bi bi-link-45deg text-primary fs-5"></i>
+  <div><div class="text-muted" style="font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em">Your Public Booking URL</div>
+  <span class="share-url">{{ public_url }}</span></div>
+  <button class="btn btn-sm ms-auto btn-outline-primary" onclick="navigator.clipboard.writeText('{{ public_url }}');this.textContent='Copied!'" style="font-size:.75rem">Copy</button>
+</div>
+
+<!-- Stats row -->
+<div class="row g-3 mb-4">
+  {% for val,lbl,col,icon in [(stats.booked,'Active','info','clock'),(stats.completed,'Completed','success','check2-circle'),(stats.cancelled,'Cancelled','danger','x-circle'),(stats.total,'Total','primary','calendar3')] %}
+  <div class="col-sm-6 col-lg-3" data-reveal data-reveal-delay="{{ loop.index0 }}">
+    <div class="stat-card"><div class="stat-icon" style="background:var(--{{ col }}-soft)"><i class="bi bi-{{ icon }}" style="color:var(--{{ col }})"></i></div>
+    <div><div class="stat-value" style="color:var(--{{ col }})" data-counter="{{ val }}">0</div><div class="stat-label">{{ lbl }}</div></div></div>
+  </div>
+  {% endfor %}
+</div>
+{% if stats.rating %}<div class="alert alert-success d-flex align-items-center gap-2 mb-4"><i class="bi bi-star-fill"></i>Average rating: <strong>{{ stats.rating }} / 5.0</strong> from {{ stats.reviews }} reviews.</div>{% endif %}
+
+{# ── Feature #17: Analytics panel ─────────────────────── #}
+<div class="sb-card mb-4" data-reveal>
+  <div class="sb-card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-graph-up-arrow me-2"></i>Analytics &amp; Trends</span>
+    <span class="text-muted small">last 30 days</span>
+  </div>
+  <div class="sb-card-body">
+    <div class="row g-3">
+
+      {# Summary tiles #}
+      <div class="col-md-4">
+        <div class="analytics-kpi">
+          <div class="kpi-label">Total revenue</div>
+          <div class="kpi-value" style="color:var(--success)">${{ "%.0f"|format(analytics.total_revenue) }}</div>
+          <div class="kpi-sub">from completed bookings</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="analytics-kpi">
+          <div class="kpi-label">Bookings in window</div>
+          <div class="kpi-value" style="color:var(--accent)" data-counter="{{ analytics.trend_total }}">0</div>
+          <div class="kpi-sub">across all statuses except cancelled</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="analytics-kpi">
+          <div class="kpi-label">Repeat-customer rate</div>
+          <div class="kpi-value" style="color:var(--gold)">{{ analytics.repeat_rate }}%</div>
+          <div class="kpi-sub">{{ analytics.repeat_customers }} of {{ analytics.total_customers }} returned</div>
+        </div>
+      </div>
+
+      {# 30-day bookings sparkline (pure CSS bars) #}
+      <div class="col-lg-7">
+        <h6 class="fw-bold mb-2" style="font-size:.85rem"><i class="bi bi-calendar2-week me-1"></i>Daily bookings</h6>
+        {% if analytics.trend_max > 0 %}
+        <div class="sb-chart">
+          {% for v in analytics.trend_values %}
+            {% set pct = (v * 100 / analytics.trend_max) if analytics.trend_max else 0 %}
+            <div class="sb-chart-bar" title="{{ analytics.trend_labels[loop.index0] }}: {{ v }} booking{{ 's' if v != 1 }}">
+              <span class="sb-chart-fill" style="height: {{ pct if pct else 2 }}%"></span>
+            </div>
+          {% endfor %}
+        </div>
+        <div class="d-flex justify-content-between text-muted mt-1" style="font-size:.68rem">
+          <span>{{ analytics.trend_labels[0] }}</span>
+          <span>{{ analytics.trend_labels[14] }}</span>
+          <span>{{ analytics.trend_labels[29] }}</span>
+        </div>
+        {% else %}
+        <div class="text-muted small text-center py-4"><i class="bi bi-bar-chart me-1"></i>No bookings in the last 30 days.</div>
+        {% endif %}
+      </div>
+
+      {# Top services by revenue #}
+      <div class="col-lg-5">
+        <h6 class="fw-bold mb-2" style="font-size:.85rem"><i class="bi bi-trophy me-1"></i>Top services by revenue</h6>
+        {% if analytics.top_services %}
+          {% for name, revenue, count in analytics.top_services %}
+            {% set pct = (revenue * 100 / analytics.top_max) if analytics.top_max else 0 %}
+            <div class="sb-revbar mb-2">
+              <div class="d-flex justify-content-between mb-1" style="font-size:.78rem">
+                <span class="fw-semibold text-truncate" style="max-width:60%">{{ name }}</span>
+                <span class="text-muted">${{ "%.0f"|format(revenue) }} · {{ count }}×</span>
+              </div>
+              <div class="sb-revbar-track"><span class="sb-revbar-fill" style="width: {{ pct }}%"></span></div>
+            </div>
+          {% endfor %}
+        {% else %}
+        <div class="text-muted small text-center py-4"><i class="bi bi-cash-stack me-1"></i>No completed bookings with pricing yet.</div>
+        {% endif %}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Today -->
+  <div class="col-lg-7">
+    <div class="sb-card mb-3">
+      <div class="sb-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-calendar-day me-2"></i>Today's Appointments</span>
+        <a href="{{ url_for('biz_appointments') }}" class="btn btn-outline-primary btn-sm">View All</a>
+      </div>
+      {% if today_appts %}
+      <div class="sb-table-wrap m-0" style="border:none;border-radius:0;box-shadow:none;">
+        <table class="table mb-0">
+          <thead><tr><th>Customer</th><th>Time</th><th>Service</th><th>Action</th></tr></thead>
+          <tbody>
+            {% for a in today_appts %}
+            <tr>
+              <td><strong>{{ a.user_name }}</strong></td>
+              <td><span class="s-badge s-booked">{{ fmt_slot(a.time) }}</span></td>
+              <td class="text-muted small">{{ a.service_name }}</td>
+              <td>
+                <form method="POST" action="{{ url_for('biz_update_status', appt_id=a.id) }}" class="d-flex gap-1">
+                  <select name="status" class="form-select form-select-sm" style="width:auto">
+                    <option value="booked" {% if a.status=='booked' %}selected{% endif %}>Booked</option>
+                    <option value="completed">Completed</option>
+                    <option value="no_show">No Show</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                  <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="sb-card-body text-center text-muted py-4"><i class="bi bi-calendar-check" style="font-size:2rem"></i><p class="mt-2 mb-0">No appointments today</p></div>
+      {% endif %}
+    </div>
+
+    <!-- Services quick view -->
+    <div class="sb-card">
+      <div class="sb-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-list-ul me-2"></i>Services</span>
+        <a href="{{ url_for('biz_services') }}" class="btn btn-outline-primary btn-sm">Manage</a>
+      </div>
+      {% if services %}
+      <div class="sb-card-body">
+        <div class="row g-2">
+          {% for s in services %}
+          <div class="col-sm-6">
+            <div style="background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:.75rem .9rem;">
+              <div class="fw-semibold" style="font-size:.875rem">{{ s.name }}</div>
+              <div class="d-flex gap-2 mt-1"><span class="text-muted small"><i class="bi bi-clock me-1"></i>{{ s.duration_min }}min</span>{% if s.price > 0 %}<span class="text-success fw-bold small">${{ "%.0f"|format(s.price) }}</span>{% endif %}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% else %}
+      <div class="sb-card-body text-center text-muted py-3"><a href="{{ url_for('biz_services') }}" class="btn btn-primary btn-sm">Add Your First Service</a></div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Notifications -->
+  <div class="col-lg-5">
+    <div class="sb-card mb-3">
+      <div class="sb-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-bell me-2"></i>Notifications</span>
+        <a href="{{ url_for('notifications') }}" class="btn btn-outline-secondary btn-sm">All</a>
+      </div>
+      {% if notifs %}
+        {% for n in notifs %}
+        <div class="notif-item"><div class="notif-dot"></div><div><div style="font-size:.82rem">{{ n.message|safe }}</div><div class="text-muted" style="font-size:.68rem">{{ n.created_at[:16] }}</div></div></div>
+        {% endfor %}
+      {% else %}
+      <div class="sb-card-body text-center text-muted py-3 small"><i class="bi bi-bell-slash me-1"></i>No new notifications</div>
+      {% endif %}
+    </div>
+
+    <!-- Quick links -->
+    <div class="sb-card">
+      <div class="sb-card-header"><i class="bi bi-lightning me-2"></i>Quick Actions</div>
+      <div class="sb-card-body d-flex flex-column gap-2">
+        <a href="{{ url_for('biz_availability') }}" class="btn btn-outline-primary w-100"><i class="bi bi-clock me-2"></i>Set Availability</a>
+        <a href="{{ url_for('biz_hours') }}" class="btn btn-outline-primary w-100"><i class="bi bi-clock-history me-2"></i>Weekly Hours</a>
+        <a href="{{ url_for('biz_appointments') }}" class="btn btn-outline-secondary w-100"><i class="bi bi-calendar3 me-2"></i>All Appointments</a>
+        <a href="{{ url_for('biz_reviews') }}" class="btn btn-outline-secondary w-100"><i class="bi bi-star me-2"></i>View Reviews</a>
+        <a href="{{ public_url }}" target="_blank" class="btn btn-outline-success w-100"><i class="bi bi-globe me-2"></i>View Public Page</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

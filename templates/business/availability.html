@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Availability — {{ biz.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <div>
+      <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="{{ url_for('biz_dashboard') }}">Dashboard</a></li><li class="breadcrumb-item active">Availability</li></ol></nav>
+      <h1 class="mb-0"><i class="bi bi-clock me-2 text-primary"></i>Set Availability</h1>
+    </div>
+    <a href="{{ url_for('biz_hours') }}" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-clock-history me-1"></i>Weekly Hours Template
+    </a>
+  </div>
+</div>
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="sb-card sb-card-body">
+      <h6 class="fw-bold mb-3">Add / Update Available Slots</h6>
+      <form method="POST">
+        <div class="mb-3"><label class="form-label">Date</label><input type="date" name="date" class="form-control" min="{{ now.strftime('%Y-%m-%d') }}" required/></div>
+        <div class="mb-3">
+          <label class="form-label">Available Time Slots</label>
+          <div class="slot-check-grid">
+            {% for s in all_slots %}
+            <div class="slot-check-item">
+              <input type="checkbox" name="slots" value="{{ s }}" id="sl{{ loop.index }}" checked/>
+              <label for="sl{{ loop.index }}">{{ fmt_slot(s) }}</label>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary w-100"><i class="bi bi-save me-1"></i>Save Availability</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="sb-card">
+      <div class="sb-card-header"><i class="bi bi-calendar3 me-2"></i>Saved Availability</div>
+      {% if availability %}
+      <div class="sb-table-wrap m-0" style="border:none;border-radius:0;box-shadow:none;">
+        <table class="table mb-0">
+          <thead><tr><th>Date</th><th>Slots</th><th></th></tr></thead>
+          <tbody>
+            {% for av in availability %}
+            <tr>
+              <td><strong>{{ av.date }}</strong></td>
+              <td class="text-muted small">{{ av.slots|length }} slots</td>
+              <td>
+                <form method="POST" action="{{ url_for('biz_del_availability', av_id=av.id) }}" onsubmit="return confirm('Delete?')">
+                  <button type="submit" class="btn btn-outline-danger btn-sm"><i class="bi bi-trash"></i></button>
+                </form>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="sb-card-body text-center text-muted py-4 small"><i class="bi bi-calendar-x me-1"></i>No availability set. Default all-day slots will be used.</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
