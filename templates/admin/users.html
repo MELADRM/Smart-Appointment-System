@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}All Users{% endblock %}
+{% block content %}
+<div class="page-header">
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin</a></li><li class="breadcrumb-item active">Users</li></ol></nav>
+  <h1><i class="bi bi-people me-2 text-primary"></i>All Users</h1>
+</div>
+<form class="d-flex gap-2 mb-3 flex-wrap">
+  <select name="role" class="form-select" style="width:auto">
+    <option value="">All Roles</option>
+    {% for r in ['user','business_owner','admin'] %}<option value="{{ r }}" {% if r==role_f %}selected{% endif %}>{{ r|replace('_',' ')|capitalize }}</option>{% endfor %}
+  </select>
+  <button type="submit" class="btn btn-outline-primary">Filter</button>
+  {% if role_f or flag %}<a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+  {# Feature #16 — quick filter chip for repeat no-shows #}
+  <a href="{{ url_for('admin_users', flag='noshow') }}"
+     class="btn {% if flag=='noshow' %}btn-danger{% else %}btn-outline-danger{% endif %} ms-auto">
+    <i class="bi bi-exclamation-triangle me-1"></i>Repeat no-shows (3+)
+  </a>
+</form>
+{% if users %}
+<div class="sb-table-wrap">
+  <table class="table mb-0">
+    <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Bookings</th><th>No-shows</th><th>Status</th><th>Joined</th><th>Actions</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      {% set ns = no_show_map.get(u.id, 0) %}
+      <tr{% if ns >= 3 %} style="background:var(--danger-soft)"{% endif %}>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="avatar-sm">{{ u.name[0] }}</div>
+            <strong>{{ u.name }}</strong>
+            {% if ns >= 3 %}<span class="s-badge s-cancelled" title="Flagged: 3+ no-shows"><i class="bi bi-flag-fill me-1"></i>Flagged</span>{% endif %}
+          </div>
+        </td>
+        <td class="text-muted small">{{ u.email }}</td>
+        <td><span class="role-pill role-{{ u.role }}">{{ u.role|replace('_',' ') }}</span></td>
+        <td class="text-muted">{{ appt_map.get(u.id, 0) }}</td>
+        <td>
+          {% if ns == 0 %}
+            <span class="text-muted">—</span>
+          {% elif ns < 3 %}
+            <span class="text-warning fw-semibold">{{ ns }}</span>
+          {% else %}
+            <span class="fw-bold" style="color:var(--danger)">{{ ns }} ⚠</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if u.get('is_active', True) %}
+          <span class="s-badge s-approved">● Active</span>
+          {% else %}
+          <span class="s-badge s-suspended">● Suspended</span>
+          {% endif %}
+        </td>
+        <td class="text-muted small">{{ u.get('created_at','')[:10] }}</td>
+        <td>
+          <div class="d-flex gap-1">
+            <a href="{{ url_for('admin_edit_user', uid=u.id) }}" class="btn btn-outline-primary btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+            <form method="POST" action="{{ url_for('admin_toggle_user', uid=u.id) }}">
+              <button type="submit" class="btn btn-sm {% if u.get('is_active',True) %}btn-outline-warning{% else %}btn-outline-success{% endif %}" title="{{ 'Suspend' if u.get('is_active',True) else 'Activate' }}">
+                <i class="bi bi-person-{% if u.get('is_active',True) %}dash{% else %}check{% endif %}"></i>
+              </button>
+            </form>
+            <form method="POST" action="{{ url_for('admin_delete_user', uid=u.id) }}" onsubmit="return confirm('Delete user?')">
+              <button type="submit" class="btn btn-outline-danger btn-sm" title="Delete"><i class="bi bi-trash"></i></button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="sb-card sb-card-body text-center py-5 text-muted">
+  <i class="bi bi-people" style="font-size:2.5rem"></i>
+  <p class="mt-3">
+    {% if flag == 'noshow' %}No users have 3 or more no-shows yet.{% else %}No users found.{% endif %}
+  </p>
+</div>
+{% endif %}
+{% endblock %}

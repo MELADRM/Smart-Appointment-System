@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="d-flex justify-content-between align-items-center">
+    <h1><i class="bi bi-shield-fill me-2 text-danger"></i>Admin Control Panel</h1>
+    <a href="{{ url_for('admin_settings') }}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-gear me-1"></i>Settings</a>
+  </div>
+</div>
+
+{% if pending_apps > 0 %}
+<div class="alert alert-warning d-flex align-items-center gap-2 mb-4">
+  <i class="bi bi-inbox-fill fs-5"></i>
+  <span><strong>{{ pending_apps }} pending business application{{ 's' if pending_apps > 1 }}</strong> awaiting your review.</span>
+  <a href="{{ url_for('admin_applications') }}" class="btn btn-warning btn-sm ms-auto">Review Now</a>
+</div>
+{% endif %}
+
+<div class="row g-3 mb-4">
+  {% for val,lbl,col,icon,url,numeric in [
+    (stats.users,'Users','info','people',url_for('admin_users'),True),
+    (stats.owners,'Business Owners','success','shop',url_for('admin_businesses'),True),
+    (stats.businesses,'Active Businesses','primary','building',url_for('admin_businesses'),True),
+    (stats.pending_apps,'Pending Apps','warning','inbox',url_for('admin_applications'),True),
+    (stats.total_appts,'Total Bookings','primary','calendar3',url_for('admin_appointments'),True),
+    (stats.booked,'Active Bookings','info','clock',url_for('admin_appointments'),True),
+    (stats.completed,'Completed','success','check2-circle',url_for('admin_appointments'),True),
+    ('$'+("%.0f"|format(stats.revenue_est)),'Est. Revenue','success','currency-dollar',url_for('admin_appointments'),False)
+  ] %}
+  <div class="col-sm-6 col-lg-3" data-reveal data-reveal-delay="{{ loop.index0 % 4 }}">
+    <a href="{{ url }}" class="stat-card text-decoration-none">
+      <div class="stat-icon" style="background:var(--{{ col }}-soft)"><i class="bi bi-{{ icon }}" style="color:var(--{{ col }})"></i></div>
+      <div>
+        {% if numeric %}
+        <div class="stat-value" style="color:var(--{{ col }})" data-counter="{{ val }}">0</div>
+        {% else %}
+        <div class="stat-value" style="color:var(--{{ col }})">{{ val }}</div>
+        {% endif %}
+        <div class="stat-label">{{ lbl }}</div>
+      </div>
+    </a>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="sb-card">
+      <div class="sb-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-calendar-week me-2"></i>Recent Bookings</span>
+        <a href="{{ url_for('admin_appointments') }}" class="btn btn-outline-primary btn-sm">View All</a>
+      </div>
+      {% if recent_appts %}
+      <div class="sb-table-wrap m-0" style="border:none;border-radius:0;box-shadow:none;">
+        <table class="table mb-0">
+          <thead><tr><th>Customer</th><th>Business</th><th>Date</th><th>Status</th></tr></thead>
+          <tbody>
+            {% for a in recent_appts %}
+            <tr>
+              <td><strong>{{ a.user_name }}</strong></td>
+              <td class="text-muted small">{{ a.business_name }}</td>
+              <td class="text-muted small">{{ a.date }}</td>
+              <td><span class="s-badge s-{{ a.status }}">● {{ a.status|capitalize }}</span></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+      <div class="sb-card-body text-center text-muted py-4">No bookings yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="sb-card">
+      <div class="sb-card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-inbox me-2"></i>Pending Applications</span>
+        <a href="{{ url_for('admin_applications') }}" class="btn btn-outline-warning btn-sm">Review All</a>
+      </div>
+      {% if recent_apps %}
+        {% for a in recent_apps %}
+        <div class="notif-item">
+          <div class="notif-dot" style="background:var(--warning)"></div>
+          <div class="flex-grow-1">
+            <div class="fw-semibold" style="font-size:.875rem">{{ a.name }}</div>
+            <div class="text-muted" style="font-size:.72rem">{{ a.user_name }} · {{ a.category }} · {{ a.created_at[:10] }}</div>
+          </div>
+          <a href="{{ url_for('admin_applications') }}" class="btn btn-warning btn-sm" style="font-size:.72rem">Review</a>
+        </div>
+        {% endfor %}
+      {% else %}
+      <div class="sb-card-body text-center text-muted py-4 small"><i class="bi bi-check-circle me-1 text-success"></i>All applications reviewed</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

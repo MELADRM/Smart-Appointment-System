@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Edit User — {{ user.name }}{% endblock %}
+{% block content %}
+<div class="page-header">
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin</a></li><li class="breadcrumb-item"><a href="{{ url_for('admin_users') }}">Users</a></li><li class="breadcrumb-item active">Edit</li></ol></nav>
+  <h1><i class="bi bi-person-gear me-2 text-primary"></i>Edit User</h1>
+</div>
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="sb-card sb-card-body">
+      <form method="POST">
+        <div class="mb-3"><label class="form-label">Full Name</label><input type="text" name="name" class="form-control" value="{{ user.name }}" required minlength="2" maxlength="120"/></div>
+        <div class="mb-3"><label class="form-label">Email</label><input type="email" name="email" class="form-control" value="{{ user.email }}" required maxlength="190"/></div>
+        <div class="mb-3">
+          <label class="form-label">Role</label>
+          <select name="role" class="form-select">
+            {% for r in ['user','business_owner','admin'] %}
+            <option value="{{ r }}" {% if r==user.role %}selected{% endif %}>{{ r|replace('_',' ')|capitalize }}</option>
+            {% endfor %}
+          </select>
+          <div class="form-text">⚠ Changing to business_owner without an approved business will limit access.</div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Status</label>
+          <select name="is_active" class="form-select">
+            <option value="1" {% if user.get('is_active',True) %}selected{% endif %}>Active</option>
+            <option value="0" {% if not user.get('is_active',True) %}selected{% endif %}>Suspended</option>
+          </select>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">New Password</label>
+          <input type="password" name="password" class="form-control" placeholder="Leave blank to keep current" minlength="6" maxlength="128"/>
+          <div class="form-text">Min 6 characters if changing.</div>
+        </div>
+        <div class="d-flex gap-2">
+          <button type="submit" class="btn btn-primary px-4"><i class="bi bi-save me-1"></i>Save Changes</button>
+          <a href="{{ url_for('admin_users') }}" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

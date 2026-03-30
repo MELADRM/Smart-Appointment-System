@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Admin Settings{% endblock %}
+{% block content %}
+<div class="page-header">
+  <nav aria-label="breadcrumb"><ol class="breadcrumb mb-1"><li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Admin</a></li><li class="breadcrumb-item active">Settings</li></ol></nav>
+  <h1><i class="bi bi-gear me-2 text-primary"></i>Platform Settings</h1>
+</div>
+<div class="row g-3">
+  <div class="col-lg-5">
+    <div class="sb-card sb-card-body mb-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-key me-2"></i>Change Admin Password</h6>
+      <form method="POST">
+        <div class="mb-3"><label class="form-label">New Password</label><input type="password" name="new_password" class="form-control" placeholder="Min 6 characters" required/></div>
+        <button type="submit" class="btn btn-primary w-100">Update Password</button>
+      </form>
+    </div>
+    <div class="sb-card sb-card-body">
+      <h6 class="fw-bold mb-3"><i class="bi bi-person-badge me-2"></i>Admin Account</h6>
+      <div class="mb-2"><span class="text-muted small">Name</span><div class="fw-semibold">{{ admin_user.name }}</div></div>
+      <div><span class="text-muted small">Email</span><div class="fw-semibold">{{ admin_user.email }}</div></div>
+    </div>
+  </div>
+  <div class="col-lg-7">
+    <div class="sb-card sb-card-body">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i>Platform Statistics</h6>
+      <div class="row g-3">
+        {% for val,lbl,icon in [(db_stats.reviews,'Total Reviews','star'),(db_stats.avg_rating or '—','Avg Rating','star-half'),(db_stats.services,'Services Listed','list-ul'),(db_stats.availability,'Availability Records','calendar-week')] %}
+        <div class="col-sm-6">
+          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem;">
+            <i class="bi bi-{{ icon }} text-primary mb-2 fs-5"></i>
+            <div style="font-family:'Sora',sans-serif;font-weight:800;font-size:1.5rem">{{ val }}</div>
+            <div class="text-muted small">{{ lbl }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
