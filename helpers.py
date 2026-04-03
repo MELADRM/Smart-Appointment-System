@@ -4,7 +4,7 @@ import re
 from datetime import datetime
 from db import new_id
 
-PHONE_RE = re.compile(r'^\+?[\d\s\-().]{8,25}$')
+PHONE_RE = re.compile(r'^\+?[\d\s\-().]{7,25}$')
 EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 HEX_COLOR_RE = re.compile(r'^#(?:[0-9a-fA-F]{3}){1,2}$')
 TIME_RE = re.compile(r'^\d{2}:\d{2}$')
