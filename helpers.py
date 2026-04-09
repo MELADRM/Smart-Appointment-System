@@ -134,6 +134,7 @@ CATEGORIES = [
     "Financial",
     "Education",
     "Fitness",
+    "Other",
 ]
 
 
