@@ -9,7 +9,7 @@ from helpers import add_notification, is_valid_email
 from app_utils import send_email, login_is_blocked, login_record_fail, login_clear
 
 def register(app):
-    @app.route('/register', methods=['GET', 'POST'])
+    @app.route('/register', methods=['GET', 'POST'], endpoint='register')
     def signup_view():
         if 'user_id' in session:
             return redirect(url_for('dashboard'))
