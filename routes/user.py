@@ -162,6 +162,7 @@ def register(app):
                 for a in db['appointments']
                 if a['id'] == appt_id
                 and a['user_id'] == session['user_id']
+                and a['status'] == 'completed'
             ),
             None,
         )
