@@ -26,11 +26,15 @@ def slugify(text):
     return text[:60]
 
 def unique_slug(base, existing_slugs):
-    # Append -2 if the slug is already taken.
+    # Append -2, -3 ... if the slug is already taken.
     slug = slugify(base)
     if slug not in existing_slugs:
         return slug
-    return f"{slug}-2"
+    for i in range(2, 100):
+        candidate = f"{slug}-{i}"
+        if candidate not in existing_slugs:
+            return candidate
+    return f"{slug}-{uuid.uuid4().hex[:6]}"
 
 def _dt_to_str(v):
     if v is None:
