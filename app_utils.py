@@ -27,7 +27,7 @@ def _is_real_image(file_storage):
 
 def save_logo(app, file_storage, biz_id):
     # Returns the DB-relative path, or None if the upload is missing/invalid.
-    if not file_storage:
+    if not file_storage or not file_storage.filename:
         return None
     if not _ext_ok(file_storage.filename):
         return None
