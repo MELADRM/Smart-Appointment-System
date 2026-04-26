@@ -212,7 +212,7 @@ def slots_for_day(biz_id, date, db, duration_min=30):
     for s in open_slots:
 
         rng = slot_range(s, duration_min * 1)
-        too_long = False
+        too_long = len(rng) < need
         overlap = any(t in booked for t in rng) or any(t not in open_slots for t in rng)
         out.append(
             {
