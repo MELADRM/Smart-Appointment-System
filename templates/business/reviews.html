@@ -21,7 +21,7 @@
       <div class="stars" style="font-size:.85rem">{% for i in range(r.rating) %}★{% endfor %}</div>
       <span class="text-muted small ms-auto">{{ r.created_at[:10] }}</span>
     </div>
-    <p class="text-muted small mb-2 mt-1">{{ r.comment }}</p>
+    {% if r.comment %}<p class="text-muted small mb-2 mt-1">{{ r.comment }}</p>{% endif %}
 
     {# ── Existing owner reply ──────────────────────────── #}
     {% if r.owner_reply %}
