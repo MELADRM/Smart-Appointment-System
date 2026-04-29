@@ -252,6 +252,13 @@ def register(app):
         db['appointments'] = [a for a in db['appointments'] if a.get('biz_id') != biz_id]
         db['availability'] = [av for av in db['availability'] if av.get('biz_id') != biz_id]
         db['services'] = [s for s in db.get('services', []) if s.get('business_id') != biz_id]
+        db['reviews'] = [r for r in db.get('reviews', []) if r.get('biz_id') != biz_id]
+        db['business_images'] = [
+            i for i in db.get('business_images', []) if i.get('business_id') != biz_id
+        ]
+        db['business_hours'] = [
+            h for h in db.get('business_hours', []) if h.get('business_id') != biz_id
+        ]
 
         if owner_id:
             still_owns = any(
