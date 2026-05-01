@@ -150,6 +150,8 @@ def register(app):
             ):
                 sug = suggest_slot(biz['id'], date, time, db)
                 msg = 'That slot is outside the business hours for a ' f'{duration}-minute booking.'
+                if sug:
+                    msg += f' 💡 Try <strong>{fmt_slot(sug)}</strong> instead.'
                 flash(msg, 'warning')
                 return redirect(url_for('public_book', slug=slug, date=date))
             day_slots = slots_for_day(biz['id'], date, db, duration_min=duration)
