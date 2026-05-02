@@ -276,4 +276,8 @@ def register(app):
         db = load_db()
         uid = session['user_id']
         notifs = [n for n in db.get('notifications', []) if n['user_id'] == uid][::-1]
+        for n in db.get('notifications', []):
+            if n['user_id'] == uid:
+                n['read'] = True
+        save_db(db)
         return render_template('user/notifications.html', notifs=notifs)
