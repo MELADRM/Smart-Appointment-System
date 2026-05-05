@@ -1,5 +1,4 @@
 """SmartBook Pro entry point."""
-"Trying commit from new branch"
 from datetime import datetime
 from flask import Flask, session
 from db import load_db
