@@ -1,29 +1,11 @@
-# Python
 __pycache__/
-*.py[cod]
-*.egg-info/
-.venv/
-venv/
-env/
-
-# Secrets / local config
-*.env
+*.pyc
 .env
-*.secret
+*.log
+.DS_Store
+*.bak
 
-# Flask / app artefacts
-instance/
-flask_session/
-
-# Uploads from users
-static/uploads/*
-!static/uploads/.gitkeep
-
-# IDE / OS
+# Editor / IDE
 .idea/
 .vscode/
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
+*.swp
