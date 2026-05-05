@@ -1,6 +1,29 @@
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Secrets / local config
+*.env
 .env
-*.log
+*.secret
+
+# Flask / app artefacts
+instance/
+flask_session/
+
+# Uploads from users
+static/uploads/*
+!static/uploads/.gitkeep
+
+# IDE / OS
+.idea/
+.vscode/
 .DS_Store
-*.bak
+Thumbs.db
+
+# Logs
+*.log
