@@ -14,6 +14,7 @@ from helpers import (
     safe_int,
     suggest_slot,
 )
+from services import Recommender
 
 def register(app):
     @app.route('/dashboard')
@@ -54,12 +55,14 @@ def register(app):
             'cancelled': sum(1 for a in appts if a['status'] == 'cancelled'),
             'no_show': sum(1 for a in appts if a['status'] == 'no_show'),
         }
+        recommendations = Recommender(db).for_user(uid)
         return render_template(
             'user/dashboard.html',
             appointments=appts[:5],
             stats=stats,
             pending_app=pending_app,
             notifs=notifs,
+            recommendations=recommendations,
         )
 
     @app.route('/user/appointments')

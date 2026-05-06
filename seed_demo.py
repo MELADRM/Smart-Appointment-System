@@ -99,6 +99,66 @@ BUSINESSES = [
         'logo_color': '#1F3A5F',
         'owner_bio': 'James Park, Esq. · Massachusetts Bar, 8 years practice.',
     },
+    {
+        'id': 'biz-sarah-bayside',
+        'owner_id': 'u-staff-001',
+        'name': 'Bayside Family Dentistry',
+        'category': 'Dentistry',
+        'description': 'Family-friendly dental practice with sedation options for nervous '
+        'patients. Cleanings, fillings, and emergency visits welcome.',
+        'phone': '+1 555-105-2233',
+        'email': 'hello@baysidedental.com',
+        'address': '76 Harborfront Road, Boston, MA',
+        'website': '',
+        'logo_initial': 'B',
+        'logo_color': '#0E7C7B',
+        'owner_bio': 'A second clinic in the Aurora Dental network.',
+    },
+    {
+        'id': 'biz-james-ironforge',
+        'owner_id': 'u-staff-002',
+        'name': 'Iron Forge Strength Studio',
+        'category': 'Fitness',
+        'description': 'Powerlifting and strength conditioning in a small-group setting. '
+        'Coached squat, bench, and deadlift programs for all levels.',
+        'phone': '+1 555-244-1188',
+        'email': 'lift@ironforge.com',
+        'address': '14 Industrial Lane, Boston, MA',
+        'website': '',
+        'logo_initial': 'I',
+        'logo_color': '#3E2C2A',
+        'owner_bio': 'Sister gym to Peak Performance — strength-focused programming.',
+    },
+    {
+        'id': 'biz-sarah-renew',
+        'owner_id': 'u-staff-001',
+        'name': 'Renew Skin & Aesthetics',
+        'category': 'Dermatology',
+        'description': 'Modern aesthetic dermatology — chemical peels, microneedling, '
+        'and personalised skincare regimens.',
+        'phone': '+1 555-330-7788',
+        'email': 'care@renewskin.com',
+        'address': '203 Newbury Street, Boston, MA',
+        'website': '',
+        'logo_initial': 'R',
+        'logo_color': '#9B5DE5',
+        'owner_bio': 'Aesthetics-focused branch led by Dr. Sarah Ahmed.',
+    },
+    {
+        'id': 'biz-james-trustlaw',
+        'owner_id': 'u-staff-002',
+        'name': 'Trust & Estate Law Office',
+        'category': 'Legal',
+        'description': 'Wills, trusts, and probate. Help families plan ahead and avoid '
+        'court complications when it matters most.',
+        'phone': '+1 555-411-9090',
+        'email': 'plan@trustlaw.com',
+        'address': '550 State Avenue, Boston, MA',
+        'website': '',
+        'logo_initial': 'T',
+        'logo_color': '#264653',
+        'owner_bio': 'Estate planning practice partnered with Park & Associates.',
+    },
 ]
 existing_slugs = set()
 for b in BUSINESSES:
@@ -150,6 +210,26 @@ SERVICES = {
         ('Contract Review', 60, 200, 'Review and annotate one contract.'),
         ('Family Law Session', 90, 300, 'Divorce, custody, pre-nup consultation.'),
     ],
+    'biz-sarah-bayside': [
+        ('Routine Cleaning', 30, 70, 'Standard 6-month dental cleaning.'),
+        ('Emergency Visit', 30, 95, 'Same-day urgent care for tooth pain.'),
+        ('Sedation Consult', 30, 60, 'Pre-procedure consultation for anxious patients.'),
+    ],
+    'biz-james-ironforge': [
+        ('Strength Assessment', 45, 50, 'Form review on the big three lifts.'),
+        ('Coached Lifting Session', 60, 65, 'Programmed strength session with a coach.'),
+        ('Powerlifting Program Review', 30, 40, 'Custom 8-week program walkthrough.'),
+    ],
+    'biz-sarah-renew': [
+        ('Chemical Peel', 45, 140, 'Light or medium-depth peel with aftercare advice.'),
+        ('Microneedling', 60, 200, 'Collagen-induction treatment.'),
+        ('Skincare Consultation', 30, 75, 'Personalised regimen and product plan.'),
+    ],
+    'biz-james-trustlaw': [
+        ('Will Drafting', 60, 250, 'Draft and finalise a simple will.'),
+        ('Trust Setup', 90, 450, 'Revocable living trust creation.'),
+        ('Probate Consultation', 45, 150, 'Guidance for executors and beneficiaries.'),
+    ],
 }
 for biz_id, services in SERVICES.items():
     for name, duration, price, desc in services:
@@ -190,7 +270,15 @@ review_texts = [
     (5, 'Professional, clean, and on time. Exactly what I was looking for.'),
 ]
 rt_idx = 0
+# Only seed bookings at the four original demo businesses so the recommender
+# has fresh businesses to suggest.
+ORIGINAL_BIZ_IDS = {
+    'biz-sarah-clinic', 'biz-james-fitness',
+    'biz-sarah-derm',   'biz-james-legal',
+}
 for biz in db['businesses']:
+    if biz['id'] not in ORIGINAL_BIZ_IDS:
+        continue
     svcs = svc_by_biz.get(biz['id'], [])
     if not svcs:
         continue
