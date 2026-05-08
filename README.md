@@ -19,15 +19,15 @@ whole platform.
 
 | Public home | Business page | Booking calendar |
 |---|---|---|
-| ![Home](presentation_screenshots/01_home.png) | ![Business page](presentation_screenshots/03_business_page.png) | ![Booking calendar](presentation_screenshots/07_booking_calendar.png) |
+| ![Home](docs/presentation_screenshots/01_home.png) | ![Business page](docs/presentation_screenshots/03_business_page.png) | ![Booking calendar](docs/presentation_screenshots/07_booking_calendar.png) |
 
 | Customer dashboard | Business-owner dashboard | Admin control panel |
 |---|---|---|
-| ![Customer dashboard](presentation_screenshots/08_user_dashboard.png) | ![Owner dashboard](presentation_screenshots/11_biz_dashboard.png) | ![Admin dashboard](presentation_screenshots/18_admin_dashboard.png) |
+| ![Customer dashboard](docs/presentation_screenshots/08_user_dashboard.png) | ![Owner dashboard](docs/presentation_screenshots/11_biz_dashboard.png) | ![Admin dashboard](docs/presentation_screenshots/18_admin_dashboard.png) |
 
 | Dark-theme home | Dark-theme explore | Dark-theme business page |
 |---|---|---|
-| ![Home dark](presentation_screenshots/24_home_dark.png) | ![Explore dark](presentation_screenshots/25_explore_dark.png) | ![Business page dark](presentation_screenshots/26_business_page_dark.png) |
+| ![Home dark](docs/presentation_screenshots/24_home_dark.png) | ![Explore dark](docs/presentation_screenshots/25_explore_dark.png) | ![Business page dark](docs/presentation_screenshots/26_business_page_dark.png) |
 
 All 26 screenshots can be regenerated with `py capture_screenshots.py` (Playwright, headless Chromium).
 
